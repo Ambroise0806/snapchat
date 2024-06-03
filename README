@@ -1,0 +1,3 @@
+Install dependencies: npm i
+
+start dev server: npx expo start --tunnel
