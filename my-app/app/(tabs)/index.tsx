@@ -1,49 +1,73 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
+import { StyleSheet, Button } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/core';
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Inscription</ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Connexion</ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+type RootStackParamList = {
+    auth: { string: string } | undefined;
+};
+
+const HomeScreen = () => {
+    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+    return (
+        <ThemedView style={styles.body}>
+            <ThemedView style={styles.inscriptionContainer}>
+                <Button
+                    onPress={() => navigation.navigate('auth')}
+                    title="Inscription"
+                    color="#ffffff"
+                    accessibilityLabel="Clicker pour s'inscrire"
+                />
+            </ThemedView>
+            <ThemedView style={styles.connexionContainer}>
+                <Button
+                    // onPress={}
+                    title="Connexion"
+                    color="#ffffff"
+
+                    accessibilityLabel="Clicker pour se connecter"
+                />
+            </ThemedView>
+        </ThemedView>
+    );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+    //real color snap 
+    // jaune => #F4F01B
+    // bleu => #3CB2E2
+    // rouge => #E82754
+    body: {
+        justifyContent: 'center',
+        width: '100%',
+        height: '120%',
+        backgroundColor: '#F4F01B'
+    },
+    titleContainer: {
+        top: 75,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    inscriptionContainer: {
+        bottom: 5,
+        gap: 8,
+        marginBottom: 8,
+        backgroundColor: '#E82754',
+    },
+    connexionContainer: {
+        bottom: 5,
+        gap: 8,
+        marginBottom: 8,
+        backgroundColor: '#3CB2E2',
+    },
+    reactLogo: {
+        height: 178,
+        width: 290,
+        bottom: 0,
+        left: 0,
+        position: 'absolute',
+    },
 });
+
+export default HomeScreen
