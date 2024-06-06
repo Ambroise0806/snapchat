@@ -4,7 +4,8 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/core';
 
 type RootStackParamList = {
-    auth: { string: string } | undefined;
+    "register": { string: string } | undefined;
+    "login": { string: string } | undefined;
 };
 
 const HomeScreen = () => {
@@ -13,7 +14,7 @@ const HomeScreen = () => {
         <ThemedView style={styles.body}>
             <ThemedView style={styles.inscriptionContainer}>
                 <Button
-                    onPress={() => navigation.navigate('auth')}
+                    onPress={() => navigation.navigate('register')}
                     title="Inscription"
                     color="#ffffff"
                     accessibilityLabel="Clicker pour s'inscrire"
@@ -21,7 +22,7 @@ const HomeScreen = () => {
             </ThemedView>
             <ThemedView style={styles.connexionContainer}>
                 <Button
-                    // onPress={}
+                    onPress={() => navigation.navigate('login')}
                     title="Connexion"
                     color="#ffffff"
 
