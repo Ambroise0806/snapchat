@@ -7,7 +7,8 @@ import React, { useState } from 'react'
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    async function handleSubmit(donnees: any) {
+    async function handleSubmit() {
+      const donnees = {"email":email,"password":password};
       try {
         const reponse = await fetch("https://snapchat.epidoc.eu/user", {
           method: "PUT",
@@ -56,7 +57,7 @@ import React, { useState } from 'react'
         // holder="black"
         title="Connexion"
         color="yellow"
-        onPress={() => (handleSubmit({"email":email,"password":password}))}
+        onPress={handleSubmit}
         />
         </ThemedView>
       </ThemedView>

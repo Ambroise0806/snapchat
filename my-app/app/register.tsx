@@ -16,6 +16,7 @@ const SignUpScreen = () => {
             },
                 body: JSON.stringify(donnees),
             });  
+            console.log(response)
             return response.json();
         } catch (error) {
             console.log("Erreur lors de l'inscription", error)
