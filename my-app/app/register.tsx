@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/core';
+import { API_KEY } from '@env';
 
 type RootStackParamList = {
     "(tabs)/index": { string: string } | undefined;
@@ -21,10 +22,10 @@ const SignUpScreen = () => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "X-API-Key": API_KEY,
                 },
                 body: JSON.stringify(donnees),
             });
-            console.log(response)
             return response.json();
         } catch (error) {
             console.log("Erreur lors de l'inscription", error)
