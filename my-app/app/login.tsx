@@ -4,29 +4,47 @@ import { ThemedView } from '@/components/ThemedView';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/core';
 import React, { useState } from 'react'
+import { useRouter } from 'expo-router';
+import { API_KEY } from '@env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type RootStackParamList = {
   "(tabs)/index": { string: string } | undefined;
 };
 
 const SignIn = () => {
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fetchError, setFetchError] = useState('');
 
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
+  const router = useRouter();
+
   async function handleSubmit() {
+
     const donnees = { "email": email, "password": password };
+
     try {
       const reponse = await fetch("https://snapchat.epidoc.eu/user", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          "X-API-Key": API_KEY,
         },
         body: JSON.stringify(donnees),
       });
-      console.log(reponse)
-      return reponse.json();
+      
+      const data = await reponse.json();
+
+      if (reponse.status === 400) {
+        setFetchError('Erreur lors de la connexion !')
+      } else {
+        const jsonValue = JSON.stringify(data);
+        await AsyncStorage.setItem('my-key', jsonValue);
+        router.replace('camera');
+      }
     } catch (erreur) {
       console.error("Erreur lors de la connexion :", erreur);
     }
@@ -74,16 +92,34 @@ const SignIn = () => {
           accessibilityLabel="Clicker pour s'inscrire"
         />
       </ThemedView>
+      <ThemedView style={styles.fetchErrorContain}>
+        {fetchError && <ThemedText style={styles.fetchError}>{fetchError}</ThemedText>}
+      </ThemedView>
     </ThemedView>
     // {/* </ParallaxScrollView> */}
   );
 }
 
 const styles = StyleSheet.create({
+  fetchErrorContain: {
+    top: 150,
+    width: '100%',
+    color: '#ffffff',
+    backgroundColor: '#E82754',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  fetchError: {
+    color: '#ffffff',
+  },
+
   homeButton: {
     alignItems: "center",
     top: 430,
   },
+
   image: {
     alignItems: "center",
   },
