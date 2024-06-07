@@ -2,10 +2,19 @@ import { Image, StyleSheet, TextInput, Button } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import React, { useState } from 'react'
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/core';
+
+type RootStackParamList = {
+  "(tabs)/index": { string: string } | undefined;
+};
 
   const SignIn= () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+
+    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
 
     async function handleSubmit(donnees: any) {
       try {
@@ -59,7 +68,16 @@ import React, { useState } from 'react'
         onPress={() => (handleSubmit({"email":email,"password":password}))}
         />
         </ThemedView>
+        <ThemedView style={styles.homeButton}>
+        <Button
+                    onPress={() => navigation.navigate('(tabs)/index')}
+                    title="Home"
+                    color="#E82754"
+                    accessibilityLabel="Clicker pour s'inscrire"
+                />
+        </ThemedView>
       </ThemedView>
+      
     // {/* </ParallaxScrollView> */}
   );
 }
@@ -67,6 +85,10 @@ import React, { useState } from 'react'
   const styles = StyleSheet.create({
     image: {
       alignItems: "center",
+    },
+    homeButton: {
+      alignItems: "center",
+      top: 430,
     },
     
     titleContainer: {
