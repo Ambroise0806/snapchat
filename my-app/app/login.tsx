@@ -44,6 +44,7 @@ const SignIn = () => {
         await AsyncStorage.setItem('token', data.data['token']);
         const token = await AsyncStorage.getItem('token');
         console.log('login'+token)
+        console.log('test');
         router.replace('camera');
       }
     } catch (erreur) {
