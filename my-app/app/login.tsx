@@ -37,7 +37,7 @@ const SignIn = () => {
       });
       
       const data = await reponse.json();
-
+      console.log(data)
       if (reponse.status === 400) {
         setFetchError('Erreur lors de la connexion !')
       } else {
