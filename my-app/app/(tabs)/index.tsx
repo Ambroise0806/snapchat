@@ -1,52 +1,87 @@
-import React, {useEffect, useState} from 'react';
-import {FlatList, Text, View} from 'react-native';
-import { API_KEY } from '@env';
+import { StyleSheet, Button } from 'react-native';
+import { ThemedView } from '@/components/ThemedView';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/core';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type Username = {
-  id: string;
-  username: string;
+
+type RootStackParamList = {
+    "register": { string: string } | undefined;
+    "login": { string: string } | undefined;
 };
 
-const App = () => {
-  const [data, setData] = useState<Username[]>([]);
-
-  const getUsers = async () => {
+const getData = async () => {
     try {
-      const response = await fetch('https://snapchat.epidoc.eu/user' ,{
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "X-API-Key": API_KEY,
-        //   Authorization: ,
-        },
-      });
-      const json = await response.json();
-      console.log(json)
-      setData(json.username);
-    } catch (error) {
-      console.error(error);
-    } 
-  };
-
-  useEffect(() => {
-    getUsers();
-  }, []);
-
-  return (
-    <View style={{flex: 1, padding: 24}}>
-      {(
-        <FlatList
-          data={data}
-          keyExtractor={({id}) => id}
-          renderItem={({item}) => (
-            <Text>
-              {item.username}
-            </Text>
-          )}
-        />
-      )}
-    </View>
-  );
+        const token = await AsyncStorage.getItem('user-infos');
+        console.log(token)
+        return token;
+    } catch (e) {
+        console.log('Error when checking the login token =>' + e)
+    }
 };
 
-export default App;
+const HomeScreen = () => {
+    console.log(getData());
+    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+    return (
+        <ThemedView style={styles.body}>
+            <ThemedView style={styles.inscriptionContainer}>
+                <Button
+                    onPress={() => navigation.navigate('register')}
+                    title="Inscription"
+                    color="#ffffff"
+                    accessibilityLabel="Clicker pour s'inscrire"
+                />
+            </ThemedView>
+            <ThemedView style={styles.connexionContainer}>
+                <Button
+                    onPress={() => navigation.navigate('login')}
+                    title="Connexion"
+                    color="#ffffff"
+
+                    accessibilityLabel="Clicker pour se connecter"
+                />
+            </ThemedView>
+        </ThemedView>
+    );
+}
+
+const styles = StyleSheet.create({
+    //real color snap 
+    // jaune => #F4F01B
+    // bleu => #3CB2E2
+    // rouge => #E82754
+    body: {
+        justifyContent: 'center',
+        width: '100%',
+        height: '120%',
+        backgroundColor: '#F4F01B'
+    },
+    titleContainer: {
+        top: 75,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    inscriptionContainer: {
+        bottom: 5,
+        gap: 8,
+        marginBottom: 8,
+        backgroundColor: '#E82754',
+    },
+    connexionContainer: {
+        bottom: 5,
+        gap: 8,
+        marginBottom: 8,
+        backgroundColor: '#3CB2E2',
+    },
+    reactLogo: {
+        height: 178,
+        width: 290,
+        bottom: 0,
+        left: 0,
+        position: 'absolute',
+    },
+});
+
+export default HomeScreen
