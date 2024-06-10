@@ -6,7 +6,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 async function getData() {
     try {
         const token = await AsyncStorage.getItem('token');
-        console.log(token)
         return token;
     } catch (e) {
         console.log('Error when checking the login token =>' + e)
@@ -14,7 +13,6 @@ async function getData() {
 };
 
 const App: React.FC = () => {
-    console.log('function' + getData());
     const [imageUri, setImageUri] = useState<string | null>(null);
 
     useEffect(() => {
