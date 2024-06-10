@@ -35,14 +35,15 @@ const SignIn = () => {
         },
         body: JSON.stringify(donnees),
       });
-      
+
       const data = await reponse.json();
 
       if (reponse.status === 400) {
         setFetchError('Erreur lors de la connexion !')
       } else {
-        const jsonValue = JSON.stringify(data);
-        await AsyncStorage.setItem('my-key', jsonValue);
+        await AsyncStorage.setItem('token', data.data['token']);
+        const token = await AsyncStorage.getItem('token');
+        console.log('login'+token)
         router.replace('camera');
       }
     } catch (erreur) {

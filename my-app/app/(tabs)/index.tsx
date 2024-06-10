@@ -2,13 +2,26 @@ import { StyleSheet, Button } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/core';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 type RootStackParamList = {
     "register": { string: string } | undefined;
     "login": { string: string } | undefined;
 };
 
+const getData = async () => {
+    try {
+        const token = await AsyncStorage.getItem('user-infos');
+        console.log(token)
+        return token;
+    } catch (e) {
+        console.log('Error when checking the login token =>' + e)
+    }
+};
+
 const HomeScreen = () => {
+    console.log(getData());
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     return (
         <ThemedView style={styles.body}>
