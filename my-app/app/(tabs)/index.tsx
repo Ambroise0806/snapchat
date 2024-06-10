@@ -3,7 +3,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/core';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { useRouter } from 'expo-router';
 
 type RootStackParamList = {
     "register": { string: string } | undefined;
@@ -11,17 +11,22 @@ type RootStackParamList = {
 };
 
 const getData = async () => {
+    const router = useRouter();
     try {
         const token = await AsyncStorage.getItem('user-infos');
-        console.log(token)
-        return token;
+        if (token !== null) {
+            router.replace('camera');
+            // value previously stored
+        }
     } catch (e) {
         console.log('Error when checking the login token =>' + e)
+        return 'Error when checking the login token =>' + e;
+        // error reading value
     }
 };
 
 const HomeScreen = () => {
-    console.log(getData());
+    getData();
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     return (
         <ThemedView style={styles.body}>
