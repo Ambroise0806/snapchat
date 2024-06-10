@@ -13,7 +13,7 @@ type RootStackParamList = {
 const getData = async () => {
     const router = useRouter();
     try {
-        const token = await AsyncStorage.getItem('user-infos');
+        const token = await AsyncStorage.getItem('token');
         if (token !== null) {
             router.replace('camera');
             // value previously stored
@@ -79,13 +79,6 @@ const styles = StyleSheet.create({
         gap: 8,
         marginBottom: 8,
         backgroundColor: '#3CB2E2',
-    },
-    reactLogo: {
-        height: 178,
-        width: 290,
-        bottom: 0,
-        left: 0,
-        position: 'absolute',
     },
 });
 
