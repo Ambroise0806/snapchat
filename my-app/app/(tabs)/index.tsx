@@ -2,31 +2,13 @@ import { StyleSheet, Button } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/core';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
 
 type RootStackParamList = {
     "auth/register": { string: string } | undefined;
     "auth/login": { string: string } | undefined;
 };
 
-const getData = async () => {
-    const router = useRouter();
-    try {
-        const token = await AsyncStorage.getItem('token');
-        if (token !== null) {
-            router.replace('user_acces');
-            // value previously stored
-        }
-    } catch (e) {
-        console.log('Error when checking the login token =>' + e)
-        return 'Error when checking the login token =>' + e;
-        // error reading value
-    }
-};
-
 const HomeScreen = () => {
-    getData();
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     return (
         <ThemedView style={styles.body}>
