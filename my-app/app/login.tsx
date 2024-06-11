@@ -2,10 +2,10 @@ import { Image, StyleSheet, TextInput, Button } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { useNavigation } from '@react-navigation/core';
+import { useNavigation } from '@react-navigation/core'
 import React, { useState } from 'react'
-import { useRouter } from 'expo-router';
-import { API_KEY } from '@env';
+import { useRouter } from 'expo-router'
+import { API_KEY } from '@env'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type RootStackParamList = {
