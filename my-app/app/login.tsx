@@ -44,7 +44,7 @@ const SignIn = () => {
         await AsyncStorage.setItem('token', data.data['token']);
         const token = await AsyncStorage.getItem('token');
         console.log('login'+token)
-        router.replace('sendUsers');
+        router.replace('camera');
       }
     } catch (erreur) {
       console.error("Erreur lors de la connexion :", erreur);
