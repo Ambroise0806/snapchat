@@ -42,7 +42,7 @@ const SignIn = () => {
         setFetchError('Erreur lors de la connexion !')
       } else {
         await AsyncStorage.setItem('token', data.data['token']);
-        router.replace('camera');
+        router.replace('user_acces');
       }
 
     } catch (erreur) {

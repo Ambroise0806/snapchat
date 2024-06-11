@@ -28,10 +28,11 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="logout" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="register" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)/index" options={{ headerShown: false }} />
+        <Stack.Screen name="auth/logout" options={{ headerShown: false }} />
+        <Stack.Screen name="auth/login" options={{ headerShown: false }} />
+        <Stack.Screen name="auth/register" options={{ headerShown: false }} />
+        <Stack.Screen name="user_acces" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
     </ThemeProvider>
