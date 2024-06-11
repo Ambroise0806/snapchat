@@ -17,7 +17,7 @@ const HomeScreen = () => {
                 <Button
                     onPress={deleteToken}
                     title="se déconnecter"
-                    color="#ffffff"
+                    color="#E82754"
                     accessibilityLabel="Clicker pour se déconnecter"
                 />
             </ThemedView>

@@ -34,7 +34,7 @@ const HomeScreen = () => {
                 <Button
                     onPress={() => navigation.navigate('auth/register')}
                     title="Inscription"
-                    color="#ffffff"
+                    color="#E82754"
                     accessibilityLabel="Clicker pour s'inscrire"
                 />
             </ThemedView>
@@ -42,7 +42,7 @@ const HomeScreen = () => {
                 <Button
                     onPress={() => navigation.navigate('auth/login')}
                     title="Connexion"
-                    color="#ffffff"
+                    color="#3CB2E2"
 
                     accessibilityLabel="Clicker pour se connecter"
                 />
