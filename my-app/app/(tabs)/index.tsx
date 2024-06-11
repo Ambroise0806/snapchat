@@ -3,7 +3,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/core';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { API_KEY } from '@env';
 
 type RootStackParamList = {
     "register": { string: string } | undefined;
