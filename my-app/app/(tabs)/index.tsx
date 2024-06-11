@@ -6,8 +6,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 
 type RootStackParamList = {
-    "register": { string: string } | undefined;
-    "login": { string: string } | undefined;
+    "auth/register": { string: string } | undefined;
+    "auth/login": { string: string } | undefined;
 };
 
 const getData = async () => {
@@ -15,7 +15,7 @@ const getData = async () => {
     try {
         const token = await AsyncStorage.getItem('token');
         if (token !== null) {
-            router.replace('camera');
+            router.replace('user_acces');
             // value previously stored
         }
     } catch (e) {
@@ -32,7 +32,7 @@ const HomeScreen = () => {
         <ThemedView style={styles.body}>
             <ThemedView style={styles.inscriptionContainer}>
                 <Button
-                    onPress={() => navigation.navigate('register')}
+                    onPress={() => navigation.navigate('auth/register')}
                     title="Inscription"
                     color="#ffffff"
                     accessibilityLabel="Clicker pour s'inscrire"
@@ -40,7 +40,7 @@ const HomeScreen = () => {
             </ThemedView>
             <ThemedView style={styles.connexionContainer}>
                 <Button
-                    onPress={() => navigation.navigate('login')}
+                    onPress={() => navigation.navigate('auth/login')}
                     title="Connexion"
                     color="#ffffff"
 
