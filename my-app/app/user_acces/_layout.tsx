@@ -14,14 +14,14 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
       }}>
-      {/* <Tabs.Screen
+      <Tabs.Screen
         name="chat"
         options={{
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'chatbox' : 'chatbox-outline'} color={color} />
           ),
         }}
-      /> */}
+      />
       <Tabs.Screen
         name="camera"
         options={{
