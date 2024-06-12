@@ -14,6 +14,7 @@ const getData = async () => {
     const router = useRouter();
     try {
         const token = await AsyncStorage.getItem('token');
+        console.log(token)
         if (token !== null) {
             router.replace('user_acces');
             // value previously stored
