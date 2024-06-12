@@ -15,14 +15,15 @@ type ItemData = {
     date: string;
 };
 
+type UserData = {
+    _id: string;
+    username: string;
+};
+
 type Snap = {
     _id: null;
     date: string;
     from: string;
-};
-
-type User = {
-    username: string;
 };
 
 type ItemProps = {
@@ -32,17 +33,11 @@ type ItemProps = {
     textColor: string;
 };
 
-const Item = ({ item, onPress, backgroundColor, textColor }: ItemProps) => (
-    <TouchableOpacity onPress={onPress} style={[styles.item, { backgroundColor }]}>
-        <Text style={[styles.title, { color: textColor }]}>{item.username}</Text>
-    </TouchableOpacity>
-);
 
 const App: React.FC = () => {
     const [selectedId, setSelectedId] = useState<string | null>(null);
-    const [users, setUsers] = useState<User[]>([]);
+    const [users, setUsers] = useState<ItemData[]>([]);
     const [snaps, setSnaps] = useState<Snap[]>([]);
-    const [data, setData] = useState<ItemData[]>([]);
     const [error, setError] = useState<string | null>(null);
 
     const getSnaps = async () => {
@@ -72,67 +67,63 @@ const App: React.FC = () => {
         getSnaps();
     }, []);
 
-    let array_username: { username: string; }[] = [];
-
-    const getUsers = async (id: string, id_snap: string, date: string) => {
+    const getAllUsers = async () => {
         const token = await AsyncStorage.getItem('token');
+        const response = await fetch(`https://snapchat.epidoc.eu/user/`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "X-API-Key": API_KEY,
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        const json = await response.json();
+        return json.data
+    }
 
-        if (token != null) {
-            try {
-                const response = await fetch(`https://snapchat.epidoc.eu/user/${id}`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-API-Key": API_KEY,
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                const json = await response.json();
-                let obj = {
+    const getUsers = (users: Array<UserData>, id: string, id_snap: string, date: string): ItemData | undefined => {
+        try {
+            const foundUser: UserData | undefined = users.find((user) => user._id == id)
+            if (foundUser != undefined) {
+                return {
                     id_snap: id_snap,
-                    username: json.data.username,
+                    username: foundUser.username,
                     date: date
                 }
-                array_username.push(obj);
-                // console.log('array_users PRINCIPAL ==>', array_username)  
-                // console.log('users', users)
-                // console.log('users', users.length)
-            } catch (error) {
-                console.error(error);
-                setError(`Failed to fetch users => error: ${error}`);
             }
-        } else {
-            setError("No token found");
+        } catch (error) {
+            console.error(error);
+            setError(`Failed to fetch users => error: ${error}`);
         }
     };
 
-    useEffect(() => {
-        snaps.forEach(snap => {
+    const getAllUsernames = () => {
+        snaps.forEach(async snap => {
             if (snap.from != null && snap._id != null) {
-                getUsers(snap.from, snap._id, snap.date);
+                const formattedDate = snap.date.replace('T', ' ').substring(0, 19)
+                const foundUser: ItemData | undefined = getUsers(await getAllUsers(), snap.from, snap._id, formattedDate)
+                if (foundUser !== undefined) {
+                    setUsers(prev => [...prev, foundUser])
+                }
             }
-            });
-            }, [snaps]);
-        setUsers(array_username)
-        console.log('users', users)
-        console.log('users', users.length)
-    // console.log('users', users.length)
+        });
+    }
 
-    // useEffect(() => {
-    //     let array_data: { id_snap: null; username: any; date: string; }[] = [];
-    //     snaps.forEach(snap => {
-    //         if(snap.from != null){
-    //             let obj = {    
-    //                 id_snap: snap._id,
-    //                 username: users.username,
-    //                 date: snap.date}
-    //             array_data.push(obj);
-    //         console.log('Array VF ===> ', obj)
-    //         }
-    //     });
-    //     // setData(array_data);
-    // }, []); 
+    useEffect(() => {
+        if (snaps.length == 0) {
+            return
+        }
+        getAllUsernames()
+    }, [snaps]);
 
+    const Item = ({ item, onPress, backgroundColor, textColor }: ItemProps) => (
+        <TouchableOpacity onPress={onPress} style={[styles.item, { backgroundColor }]}>
+            <View style={styles.itemContainer}>
+                <Text style={[styles.title, { color: textColor }]}>{item.username}</Text>
+                <Text style={[styles.date, { color: textColor }]}>{item.date}</Text>
+            </View>
+        </TouchableOpacity>
+    );
 
     const renderItem = ({ item }: { item: ItemData }) => {
         const backgroundColor = item.id_snap === selectedId ? '#E82754' : '#3CB2E2';
@@ -147,29 +138,36 @@ const App: React.FC = () => {
         );
     };
 
-    // console.log('snaps', snaps)
-    // console.log('data', data)
-
+    console.log(selectedId)
     return (
-        <SafeAreaView style={styles.containerList}>
-            {error ? (
-                <View style={styles.errorContainer}>
-                    <Text style={styles.errorText}>{error}</Text>
-                </View>
-            ) : (
-                <FlatList
-                    data={data}
-                    renderItem={renderItem}
-                    keyExtractor={item => item.id_snap}
-                    extraData={selectedId}
-                />
-            )}
-        </SafeAreaView>
+        <View style={styles.body}>
+            <SafeAreaView style={styles.containerList}>
+                {error ? (
+                    <View style={styles.errorContainer}>
+                        <Text style={styles.errorText}>{error}</Text>
+                    </View>
+                ) : (
+                    <FlatList
+                        data={users}
+                        renderItem={renderItem}
+                        keyExtractor={item => item.id_snap}
+                        extraData={selectedId}
+                    />
+                )}
+            </SafeAreaView>
+        </View>
     );
 
 };
 
 const styles = StyleSheet.create({
+    body: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 50,
+        backgroundColor: '#F4F01B'
+    },
     containerList: {
         flex: 1,
         marginTop: 10,
@@ -179,8 +177,17 @@ const styles = StyleSheet.create({
         marginVertical: 8,
         marginHorizontal: 16,
     },
+    itemContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
     title: {
         fontSize: 18,
+    },
+    date: {
+        fontSize: 12,
     },
     errorContainer: {
         flex: 1,
