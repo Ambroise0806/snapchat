@@ -38,6 +38,14 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="addFriends"
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'person-add' : 'person-add-outline'} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
