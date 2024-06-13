@@ -87,7 +87,6 @@ const AddFriends = () => {
             setError("No token found");
         }
     };
-
     useEffect(() => {
         addFriend();
     }, []);
