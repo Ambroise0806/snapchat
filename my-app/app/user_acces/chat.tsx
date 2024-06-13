@@ -1,102 +1,203 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, Image, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_KEY } from '@env';
+import {
+    FlatList,
+    SafeAreaView,
+    Text,
+    TouchableOpacity,
+} from 'react-native';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+type ItemData = {
+    id_snap: string;
+    username: string;
+    date: string;
+};
 
-export default function TabTwoScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={<Ionicons size={310} name="code-slash" style={styles.headerImage} />}>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText> library
-          to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
-  );
-}
+type UserData = {
+    _id: string;
+    username: string;
+};
+
+type Snap = {
+    _id: null;
+    date: string;
+    from: string;
+};
+
+type ItemProps = {
+    item: ItemData;
+    onPress: () => void;
+    backgroundColor: string;
+    textColor: string;
+};
+
+
+const App: React.FC = () => {
+    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [users, setUsers] = useState<ItemData[]>([]);
+    const [snaps, setSnaps] = useState<Snap[]>([]);
+    const [error, setError] = useState<string | null>(null);
+
+    const getSnaps = async () => {
+        const token = await AsyncStorage.getItem('token');
+        if (token != null) {
+            try {
+                const response = await fetch('https://snapchat.epidoc.eu/snap', {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-API-Key": API_KEY,
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                const json = await response.json();
+                setSnaps(json.data);
+            } catch (error) {
+                console.error(error);
+                setError("Failed to fetch users");
+            }
+        } else {
+            setError("No token found");
+        }
+    };
+
+    useEffect(() => {
+        getSnaps();
+    }, []);
+
+    const getAllUsers = async () => {
+        const token = await AsyncStorage.getItem('token');
+        const response = await fetch(`https://snapchat.epidoc.eu/user/`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "X-API-Key": API_KEY,
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        const json = await response.json();
+        return json.data
+    }
+
+    const getUsers = (users: Array<UserData>, id: string, id_snap: string, date: string): ItemData | undefined => {
+        try {
+            const foundUser: UserData | undefined = users.find((user) => user._id == id)
+            if (foundUser != undefined) {
+                return {
+                    id_snap: id_snap,
+                    username: foundUser.username,
+                    date: date
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            setError(`Failed to fetch users => error: ${error}`);
+        }
+    };
+
+    const getAllUsernames = () => {
+        snaps.forEach(async snap => {
+            if (snap.from != null && snap._id != null) {
+                const formattedDate = snap.date.replace('T', ' ').substring(0, 19)
+                const foundUser: ItemData | undefined = getUsers(await getAllUsers(), snap.from, snap._id, formattedDate)
+                if (foundUser !== undefined) {
+                    setUsers(prev => [...prev, foundUser])
+                }
+            }
+        });
+    }
+
+    useEffect(() => {
+        if (snaps.length == 0) {
+            return
+        }
+        getAllUsernames()
+    }, [snaps]);
+
+    const Item = ({ item, onPress, backgroundColor, textColor }: ItemProps) => (
+        <TouchableOpacity onPress={onPress} style={[styles.item, { backgroundColor }]}>
+            <View style={styles.itemContainer}>
+                <Text style={[styles.title, { color: textColor }]}>{item.username}</Text>
+                <Text style={[styles.date, { color: textColor }]}>{item.date}</Text>
+            </View>
+        </TouchableOpacity>
+    );
+
+    const renderItem = ({ item }: { item: ItemData }) => {
+        const backgroundColor = item.id_snap === selectedId ? '#E82754' : '#3CB2E2';
+        const color = item.id_snap === selectedId ? 'white' : 'black';
+        return (
+            <Item
+                item={item}
+                onPress={() => setSelectedId(item.id_snap)}
+                backgroundColor={backgroundColor}
+                textColor={color}
+            />
+        );
+    };
+
+    console.log(selectedId)
+    return (
+        <View style={styles.body}>
+            <SafeAreaView style={styles.containerList}>
+                {error ? (
+                    <View style={styles.errorContainer}>
+                        <Text style={styles.errorText}>{error}</Text>
+                    </View>
+                ) : (
+                    <FlatList
+                        data={users}
+                        renderItem={renderItem}
+                        keyExtractor={item => item.id_snap}
+                        extraData={selectedId}
+                    />
+                )}
+            </SafeAreaView>
+        </View>
+    );
+
+};
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
+    body: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 50,
+        backgroundColor: '#F4F01B'
+    },
+    containerList: {
+        flex: 1,
+        marginTop: 10,
+    },
+    item: {
+        padding: 20,
+        marginVertical: 8,
+        marginHorizontal: 16,
+    },
+    itemContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    title: {
+        fontSize: 18,
+    },
+    date: {
+        fontSize: 12,
+    },
+    errorContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    errorText: {
+        fontSize: 18,
+        color: 'red',
+    },
 });
+
+export default App;
