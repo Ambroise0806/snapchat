@@ -35,7 +35,6 @@ type ItemProps = {
     textColor: string;
 };
 
-
 const App: React.FC = () => {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [users, setUsers] = useState<ItemData[]>([]);
