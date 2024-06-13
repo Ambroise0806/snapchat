@@ -4,7 +4,6 @@ import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_KEY } from '@env';
 import RNPickerSelect from 'react-native-picker-select';
-import { useRouter } from 'expo-router';
 import {
     FlatList,
     SafeAreaView,
@@ -26,6 +25,12 @@ type ItemProps = {
     textColor: string;
 };
 
+type Donnees = {
+    to: string | null, 
+    image: string | null, 
+    duration: number
+}
+
 const Item = ({ item, onPress, backgroundColor, textColor }: ItemProps) => (
     <TouchableOpacity onPress={onPress} style={[styles.item, { backgroundColor }]}>
         <Text style={[styles.title, { color: textColor }]}>{item.username}</Text>
@@ -39,39 +44,38 @@ const App: React.FC = () => {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [data, setData] = useState<ItemData[]>([]);
     const [error, setError] = useState<string | null>(null);
-    const [duration, setDuration] = useState<number | null>(null);
-    
-    
+    const [duration, setDuration] = useState<number>(5);
+  
     const Dropdown = () => {
-      const placeholder = {
-        label: 'Selectionner votre temps',
-        value: null,
-      };  const options = [
-        { label: '1 sec', value: 1 },
-        { label: '2 sec', value: 2 },
-        { label: '3 sec', value: 3 },
-        { label: '4 sec', value: 4 },
-        { label: '5 sec', value: 5 },
-        { label: '6 sec', value: 6 },
-        { label: '7 sec', value: 7 },
-        { label: '8 sec', value: 8 },
-        { label: '9 sec', value: 9 },
-        { label: '10 sec', value: 10 },
-      ];  
-      return (
-        <View>
-          <RNPickerSelect
-            placeholder={placeholder}
-            items={options}
-            onValueChange={(value) => setDuration(value)}
-            value={duration}
-          />
-        </View>
-      );
+        const placeholder = {
+            label: '5 sec',
+            value: 5,
+            }; const options = [
+                { label: '1 sec', value: 1 },
+                { label: '2 sec', value: 2 },
+                { label: '3 sec', value: 3 },
+                { label: '4 sec', value: 4 },
+                { label: '5 sec', value: 5 },
+                { label: '6 sec', value: 6 },
+                { label: '7 sec', value: 7 },
+                { label: '8 sec', value: 8 },
+                { label: '9 sec', value: 9 },
+                { label: '10 sec', value: 10 },
+                ];
+            console.log(typeof(duration))
+        return (
+            <View>
+                <RNPickerSelect
+                    placeholder={placeholder}
+                    items={options}
+                    onValueChange={(value: number) => setDuration(value)}
+                    value={duration}
+                />
+            </View>
+        );
     };
-    async function handleSubmit() {
 
-      const donnees = { "to": selectedId, "image": `data:image/png;base64,${imageBase64}`, "duration": duration };
+      const donnees = { "to": selectedId, "image": `data:image/png;base64,${imageBase64}`, "duration": parseInt(duration) };
       console.log(donnees)
       const token = await AsyncStorage.getItem('token');
       if(token != null){
@@ -101,11 +105,7 @@ const App: React.FC = () => {
         } catch (erreur) {
           console.error("Erreur lors de l'envoie du snap :", erreur);
         }
-      }else {
-        setError("No token found");
-      }
     }
-  
 
     const getFriends = async () => {
         const token = await AsyncStorage.getItem('token');
@@ -149,16 +149,14 @@ const App: React.FC = () => {
 
     useEffect(() => {
         (async () => {
-            if (Platform.OS !== 'web') {
-                const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-                if (status !== 'granted') {
-                    alert('Désolé, nous avons besoin des autorisations de la gallerie pour que cela fonctionne!');
-                }
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+                alert('Désolé, nous avons besoin des autorisations de la gallerie pour que cela fonctionne!');
+            }
 
-                const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
-                if (cameraStatus.status !== 'granted') {
-                    alert('Désolé, nous avons besoin des autorisations de la caméra pour que cela fonctionne!');
-                }
+            const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
+            if (cameraStatus.status !== 'granted') {
+                alert('Désolé, nous avons besoin des autorisations de la caméra pour que cela fonctionne!');
             }
         })();
     }, []);
@@ -168,7 +166,7 @@ const App: React.FC = () => {
             base64: true,
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
-            quality: 1,
+            quality: 0,
         });
 
         if (!result.canceled) {
@@ -181,7 +179,7 @@ const App: React.FC = () => {
         let result = await ImagePicker.launchCameraAsync({
             base64: true,
             allowsEditing: true,
-            quality: 1,
+            quality: 0,
         });
 
         if (!result.canceled) {
@@ -202,39 +200,39 @@ const App: React.FC = () => {
                 <Button title="Prendre une photo" color="#3CB2E2" onPress={takePhoto} />
             </View>}
 
-            {imageUri && 
-            <View style={{ marginTop: 20 }}>
-              <Button title="Supprimer la photo" color="#E82754" onPress={deleteImage} />
-              <Image source={{ uri: imageUri }} style={styles.image} />
-              <Dropdown/>
-              <SafeAreaView style={styles.containerList}>
-                {error ? (
-                  <View style={styles.errorContainer}>
-                        <Text style={styles.errorText}>{error}</Text>
-                    </View>
-                ) : (
-                    <FlatList
-                    data={data}
-                    renderItem={renderItem}
-                    keyExtractor={item => item._id}
-                    extraData={selectedId}
-                    />
-                  )}
-                <View style={styles.button1}>
-                <Button
-                    title="ENVOYER"
-                    onPress={handleSubmit}
-                    />
-            </View>
-            </SafeAreaView>
-            </View>}
+            {imageUri &&
+                <View style={{ marginTop: 20 }}>
+                    <Button title="Supprimer la photo" color="#E82754" onPress={deleteImage} />
+                    <Image source={{ uri: imageUri }} style={styles.image} />
+                    <Dropdown />
+                    <SafeAreaView style={styles.containerList}>
+                        {error ? (
+                            <View style={styles.errorContainer}>
+                                <Text style={styles.errorText}>{error}</Text>
+                            </View>
+                        ) : (
+                            <FlatList
+                                data={data}
+                                renderItem={renderItem}
+                                keyExtractor={item => item._id}
+                                extraData={selectedId}
+                            />
+                        )}
+                        <View style={styles.button1}>
+                            <Button
+                                title="ENVOYER"
+                                onPress={handleSubmit}
+                            />
+                        </View>
+                    </SafeAreaView>
+                </View>}
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     button1: {
-      backgroundColor: 'blue',
+        backgroundColor: 'blue',
     },
     containerList: {
         flex: 1,
