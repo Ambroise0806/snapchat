@@ -3,6 +3,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/core';
 
+
 type RootStackParamList = {
     "auth/register": { string: string } | undefined;
     "auth/login": { string: string } | undefined;
