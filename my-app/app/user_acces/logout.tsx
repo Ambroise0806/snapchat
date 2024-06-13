@@ -1,4 +1,4 @@
-import { View, Text, TextInput, StyleSheet, Button, Platform, Image, TouchableOpacity} from 'react-native';
+import { View, Text, TextInput, StyleSheet, Button, Platform, Image, Alert} from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
@@ -17,7 +17,7 @@ const HomeScreen = () => {
         async function CrudModif() {
                 const token = await AsyncStorage.getItem('token');
                 if (token != null) {
-            const donnees = { "email": email, "password": password, "username": userName, "profilePicture": imageBase64 };
+            const donnees = { "email": email, "password": password, "username": userName, "profilePicture": `data:image/png;base64,${imageBase64}` };
             try {
                 const response = await fetch("https://snapchat.epidoc.eu/user", {
                     method: "PATCH",
@@ -28,7 +28,13 @@ const HomeScreen = () => {
                     },
                     body: JSON.stringify(donnees),
                 });
-                return response.json();
+                const json = await response.json();
+                if (response.status === 400) {
+                    console.error('Error response API :', json.data);
+                    Alert.alert("Echec de la modification", json.data)
+                } else {
+                    Alert.alert("Modification réusie")
+                }
             } catch (error) {
                 console.log("Erreur lors de la modification du profil", error)
             }
@@ -54,7 +60,7 @@ const HomeScreen = () => {
                 base64: true,
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,
-                quality: 1,
+                quality: 0,
             });
     
             if (!result.canceled) {
@@ -67,7 +73,7 @@ const HomeScreen = () => {
             let result = await ImagePicker.launchCameraAsync({
                 base64: true,
                 allowsEditing: true,
-                quality: 1,
+                quality: 0,
             });
     
             if (!result.canceled) {
@@ -77,6 +83,7 @@ const HomeScreen = () => {
         };
     
     const router = useRouter();
+
     const deleteToken = async () => {
         await AsyncStorage.removeItem('token');
         router.replace('/');
@@ -84,12 +91,22 @@ const HomeScreen = () => {
 
     return (
         <View style={styles.container}>
+            <View>
+                {imageUri && <Image 
+                source={{ uri: imageUri}}
+                style={{
+                    borderColor: 'gray',
+                    borderWidth: 5,
+                    height: 100,
+                    width: 100,
+                    borderRadius: 50
+                    }}
+                />}
+            </View>
                 {!imageUri && <View>
                     <Button title="Sélectionner une image dans la Gallerie" color="#E82754" onPress={selectImage} />
                     <Button title="Prendre une photo" color="#3CB2E2" onPress={takePhoto} />
             </View>}
-                {!imageUri && <View style={styles.containerImage}>
-                </View>}
             <TextInput
                 value={email}
                 style={styles.input}
@@ -154,9 +171,6 @@ const styles = StyleSheet.create({
     },
     button1: {
         marginTop: 150,
-    },
-    containerImage: {
-
     },
     container: {
         flex: 1,
