@@ -40,10 +40,6 @@ const App: React.FC = () => {
     const [data, setData] = useState<ItemData[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [duration, setDuration] = useState<number | null>(null);
-    const [fetchError, setFetchError] = useState('');
-    const router = useRouter();
-
-
     
     const Dropdown = () => {
       const placeholder = {
