@@ -144,16 +144,14 @@ const App: React.FC = () => {
 
     useEffect(() => {
         (async () => {
-            if (Platform.OS !== 'web') {
-                const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-                if (status !== 'granted') {
-                    alert('Désolé, nous avons besoin des autorisations de la gallerie pour que cela fonctionne!');
-                }
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+                alert('Désolé, nous avons besoin des autorisations de la gallerie pour que cela fonctionne!');
+            }
 
-                const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
-                if (cameraStatus.status !== 'granted') {
-                    alert('Désolé, nous avons besoin des autorisations de la caméra pour que cela fonctionne!');
-                }
+            const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
+            if (cameraStatus.status !== 'granted') {
+                alert('Désolé, nous avons besoin des autorisations de la caméra pour que cela fonctionne!');
             }
         })();
     }, []);
