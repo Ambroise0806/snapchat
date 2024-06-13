@@ -41,6 +41,7 @@ const App: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [duration, setDuration] = useState<number | null>(null);
     
+    
     const Dropdown = () => {
       const placeholder = {
         label: 'Selectionner votre temps',
@@ -86,8 +87,12 @@ const App: React.FC = () => {
           });
           const json = await reponse.json();
           if (reponse.status === 400){
-            setError(json.data);
-            Alert.alert("Echec de l'envoie", '')  
+            Alert.alert("Echec de l'envoie", json.data, [
+                {
+                    text: "OK",
+                    onPress: () => getFriends()
+                }
+            ])
           }else{
             Alert.alert("Snap envoyé", '')  
           }
@@ -102,11 +107,11 @@ const App: React.FC = () => {
     }
   
 
-    const getUsers = async () => {
+    const getFriends = async () => {
         const token = await AsyncStorage.getItem('token');
         if (token != null) {
             try {
-                const response = await fetch('https://snapchat.epidoc.eu/user', {
+                const response = await fetch('https://snapchat.epidoc.eu/user/friends', {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -126,7 +131,7 @@ const App: React.FC = () => {
     };
 
     useEffect(() => {
-        getUsers();
+        getFriends();
     }, []);
 
     const renderItem = ({ item }: { item: ItemData }) => {
