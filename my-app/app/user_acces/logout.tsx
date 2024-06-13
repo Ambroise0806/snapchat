@@ -13,12 +13,11 @@ const HomeScreen = () => {
         const [userName, setUserName] = useState('');
         const [imageBase64, setimageBase64] = useState<string | null | undefined>(null);
         const [imageUri, setImageUri] = useState<string | null>(null);
-        const [profilePicture, setProfilePicture] = useState()
         
         async function CrudModif() {
                 const token = await AsyncStorage.getItem('token');
                 if (token != null) {
-            const donnees = { "email": email, "password": password, "username": userName, "profilePicture": profilePicture };
+            const donnees = { "email": email, "password": password, "username": userName, "profilePicture": imageBase64 };
             try {
                 const response = await fetch("https://snapchat.epidoc.eu/user", {
                     method: "PATCH",
