@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Button, StyleSheet,FlatList, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet,FlatList, SafeAreaView, TouchableOpacity,Alert } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/core';
 import { API_KEY } from '@env';
@@ -78,7 +78,14 @@ const AddFriends = () => {
                 });
                 const json = await response.json();
                 setData(json.data);
-                console.log(json)
+                console.log(response)
+                if (response.status === 400){
+                    setError(json.data);
+                    Alert.alert("Echec de l'envoie", '')  
+                  }else{
+                    Alert.alert("Demande envoyé", '')  
+                    getUsers()
+                  }
             } catch (error) {
                 console.error(error);
                 setError("Failed to fetch users");
@@ -87,9 +94,6 @@ const AddFriends = () => {
             setError("No token found");
         }
     };
-    useEffect(() => {
-        addFriend();
-    }, []);
 
     const renderItem = ({ item }: { item: ItemData }) => {
         const backgroundColor = item._id === selectedId ? '#E82754' : '#3CB2E2';
