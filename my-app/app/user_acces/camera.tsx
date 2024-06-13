@@ -45,7 +45,7 @@ const App: React.FC = () => {
     const [data, setData] = useState<ItemData[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [duration, setDuration] = useState<number>(5);
-  
+
     const Dropdown = () => {
         const placeholder = {
             label: '5 sec',
@@ -75,43 +75,40 @@ const App: React.FC = () => {
         );
     };
 
-      const donnees = { "to": selectedId, "image": `data:image/png;base64,${imageBase64}`, "duration": parseInt(duration) };
-      console.log(donnees)
-      const token = await AsyncStorage.getItem('token');
-      if(token != null){
-        try {
-          const reponse = await fetch("https://snapchat.epidoc.eu/snap", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-API-Key": API_KEY,
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(donnees),
-          });
-          const json = await reponse.json();
-          if (reponse.status === 400){
-            Alert.alert("Echec de l'envoie", json.data, [
-                {
-                    text: "OK",
-                    onPress: () => getFriends()
-                }
-            ])
-          }else{
-            Alert.alert("Snap envoyé", '')  
-          }
-          console.log(json)
-          
-        } catch (erreur) {
-          console.error("Erreur lors de l'envoie du snap :", erreur);
-        }
-    }
-
-    const getFriends = async () => {
+    async function handleSubmit() {
+        const donnees: Donnees = { "to": selectedId, "image": `data:image/png;base64,${imageBase64}`, "duration": parseInt(duration) };
         const token = await AsyncStorage.getItem('token');
         if (token != null) {
             try {
-                const response = await fetch('https://snapchat.epidoc.eu/user/friends', {
+                const reponse = await fetch("https://snapchat.epidoc.eu/snap", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-API-Key": API_KEY,
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(donnees),
+                });
+                const json = await reponse.json();
+                if (reponse.status === 400) {
+                    console.error('Error reponse API :', json.data);
+                    Alert.alert("Echec de l'envoie", json.data)
+                } else {
+                    Alert.alert("Snap envoyé", '')
+                }
+            } catch (erreur) {
+                console.error("Erreur lors de l'envoie du snap :", erreur);
+            }
+        } else {
+            setError("No token found");
+        }
+    }
+
+    const getUsers = async () => {
+        const token = await AsyncStorage.getItem('token');
+        if (token != null) {
+            try {
+                const response = await fetch('https://snapchat.epidoc.eu/user', {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -131,7 +128,7 @@ const App: React.FC = () => {
     };
 
     useEffect(() => {
-        getFriends();
+        getUsers();
     }, []);
 
     const renderItem = ({ item }: { item: ItemData }) => {
