@@ -43,7 +43,7 @@ const App: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [imageBase64, setimageBase64] = useState<string | null | undefined>(null);
     const [duration, setDuration] = useState<number | null | undefined>(null);
-    const [refresh, setRefresh] = useState(false);
+    const [refresh, setRefresh] = useState<boolean>(false);
 
     const getSnaps = async () => {
         const token = await AsyncStorage.getItem('token');
@@ -195,7 +195,11 @@ const App: React.FC = () => {
         if (snaps.length == 0) {
             return
         } else {
-            setRefresh(true);
+            if(refresh){
+                setRefresh(false);
+            } else {
+                setRefresh(true);
+            }
         }
     }, [selectedId])
 
