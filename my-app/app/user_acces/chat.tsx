@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet, Button, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_KEY } from '@env';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/core';
 import {
     FlatList,
     SafeAreaView,
@@ -10,6 +12,10 @@ import {
 } from 'react-native';
 import { jsiConfigureProps } from 'react-native-reanimated/lib/typescript/reanimated2/core';
 import { FlipInEasyX } from 'react-native-reanimated';
+
+type RootStackParamList = {
+    "friends": { string: string } | undefined;
+};
 
 type ItemData = {
     id_snap: string;
@@ -40,6 +46,7 @@ const App: React.FC = () => {
     const [users, setUsers] = useState<ItemData[]>([]);
     const [snaps, setSnaps] = useState<Snap[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const [imageBase64, setimageBase64] = useState<string | null | undefined>(null);
     const [duration, setDuration] = useState<number | null | undefined>(null);
     const [refresh, setRefresh] = useState<boolean>(false);
@@ -97,7 +104,7 @@ const App: React.FC = () => {
             }
         } catch (error) {
             console.error(error);
-            setError(`Failed to fetch users => error: ${error}`);
+            setError(`FafoundUseriled to fetch users => error: ${error}`);
         }
     };
 
@@ -217,6 +224,13 @@ const App: React.FC = () => {
                         extraData={selectedId}
                     />
                 )}
+            </SafeAreaView>
+            <View>
+                <Button
+                    title="Amis"
+                    onPress={() => navigation.navigate('friends')}
+                />
+            </View>
             </SafeAreaView>}
             {duration && <Text style={styles.duration}>{duration}</Text>}
             {imageBase64 && <Image source={{ uri: imageBase64 }} style={styles.image} />}
@@ -261,6 +275,9 @@ const styles = StyleSheet.create({
     errorText: {
         fontSize: 18,
         color: 'red',
+    },
+    button1: {
+        fontSize: 20,
     },
     image: {
         width: '100%',

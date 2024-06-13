@@ -15,23 +15,6 @@ type ItemProps = {
     textColor: string;
 };
 
-type AllUsers = {
-    _id: string,
-    username: string,
-    profilePicture: string
-}
-
-type AllFriends = {
-    _id: string,
-    username: string,
-    profilePicture: string
-}
-
-type NotFriend = {
-    _id: string;
-    username: string;
-};
-
 const Item = ({ item, onPress, backgroundColor, textColor }: ItemProps) => (
     <TouchableOpacity onPress={onPress} style={[styles.item, { backgroundColor }]}>
         <Text style={[styles.title, { color: textColor }]}>{item.username}</Text>
@@ -39,38 +22,11 @@ const Item = ({ item, onPress, backgroundColor, textColor }: ItemProps) => (
 );
 
 const Friends = () => {
-    const [allUsers, setAllUsers] = useState<AllUsers[]>([]);
-    const [allFriends, setAllFriends] = useState<AllFriends[]>([]);
     const [data, setData] = useState<ItemData[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [selectedId, setSelectedId] = useState<string | null>(null);
 
-    const getAllUsers = async () => {
-        const token = await AsyncStorage.getItem('token');
-        if (token != null) {
-            try {
-                const response = await fetch('https://snapchat.epidoc.eu/user', {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-API-Key": API_KEY,
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                const json = await response.json();
-                setAllUsers(json.data);
-                return json.data;
-            } catch (error) {
-                console.error(error);
-                setError("Failed to fetch users");
-            }
-        } else {
-            setError("No token found");
-        }
-    };
-
-    
-    const getAllFriends = async () => {
+    const getFriends = async () => {
         const token = await AsyncStorage.getItem('token');
         if (token != null) {
             try {
@@ -83,7 +39,7 @@ const Friends = () => {
                     },
                 });
                 const json = await response.json();
-                setAllFriends(json.data);
+                setData(json.data);
             } catch (error) {
                 console.error(error);
                 setError("Failed to show friends");
@@ -93,18 +49,17 @@ const Friends = () => {
         }
     };
 
-        useEffect(() => {
-            getAllUsers();
-            getAllFriends();
-        }, []);
-        
-    const postFriend = async () => {
+    useEffect(() => {
+        getFriends();
+    }, []);
+
+    const deleteFriends = async () => {
         const token = await AsyncStorage.getItem('token');
         const donnees = { "friendId": selectedId };
 
             try {
                 const response = await fetch('https://snapchat.epidoc.eu/user/friends', {
-                    method: "POST",
+                    method: "DELETE",
                     headers: {
                         "Content-Type": "application/json",
                         "X-API-Key": API_KEY,
@@ -117,49 +72,16 @@ const Friends = () => {
                 console.log(response)
                 if (response.status === 400){
                     setError(json.data);
-                    Alert.alert("Echec de l'envoie", '')  
-                }else{
-                    Alert.alert("Demande envoyé", '')  
-                }
+                    Alert.alert("Echec de la suppression", '')  
+                  }else{
+                    Alert.alert("Suppression réuissie", '')  
+                    getFriends()
+                  }
             } catch (error) {
                 console.error(error);
             }
         };
 
-        const getNotFriend = (users: Array<AllUsers>, id: string): NotFriend | undefined => {
-            try {
-                const foundNotFriend: NotFriend | undefined = users.find((user) => user._id != id)
-                if (foundNotFriend != undefined) {
-                    return {
-                        _id: foundNotFriend._id,
-                        username: foundNotFriend.username,
-                    }
-                }
-            } catch (error) {
-                console.error(error);
-                setError(`Failed to fetch users => error: ${error}`);
-            }
-        };
-
-        const getList = () => {
-            allUsers.forEach(async user => {
-                if (user._id != null) {
-                    const foundNotFriend: NotFriend| undefined = getNotFriend(await getAllUsers(), user._id)
-                    if (foundNotFriend !== undefined) {
-                        setData(prev => [...prev, foundNotFriend])
-                    }
-                }
-            });
-        }
-
-        useEffect(() => {
-            if (allUsers.length == 0) {
-                return
-            }
-            getList();
-        }, [allUsers]);
-
-        console.log(data);
     const renderItem = ({ item }: { item: ItemData }) => {
         const backgroundColor = item._id === selectedId ? '#E82754' : '#3CB2E2';
         const color = item._id === selectedId ? 'white' : 'black';
@@ -191,8 +113,8 @@ const Friends = () => {
             </SafeAreaView>
             <View style={styles.button1}>
                 <Button
-                    title="Ajouter"
-                    onPress={postFriend}
+                    title="Supprimer"
+                    onPress={deleteFriends}
                     />
             </View>
             </View>)}
