@@ -4,7 +4,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/core';
 import React, { useState } from 'react'
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
 import { API_KEY } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -20,7 +20,7 @@ const SignIn = () => {
 
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
-  const router = useRouter();
+  // const router = useRouter();
 
   async function handleSubmit() {
 
