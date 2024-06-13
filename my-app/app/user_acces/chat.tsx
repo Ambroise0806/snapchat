@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_KEY } from '@env';
 import {
@@ -8,6 +8,8 @@ import {
     Text,
     TouchableOpacity,
 } from 'react-native';
+import { jsiConfigureProps } from 'react-native-reanimated/lib/typescript/reanimated2/core';
+import { FlipInEasyX } from 'react-native-reanimated';
 
 type ItemData = {
     id_snap: string;
@@ -39,6 +41,9 @@ const App: React.FC = () => {
     const [users, setUsers] = useState<ItemData[]>([]);
     const [snaps, setSnaps] = useState<Snap[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [imageBase64, setimageBase64] = useState<string | null | undefined>(null);
+    const [duration, setDuration] = useState<number | null | undefined>(null);
+    const [refresh, setRefresh] = useState(false);
 
     const getSnaps = async () => {
         const token = await AsyncStorage.getItem('token');
@@ -65,7 +70,7 @@ const App: React.FC = () => {
 
     useEffect(() => {
         getSnaps();
-    }, []);
+    }, [refresh]);
 
     const getAllUsers = async () => {
         const token = await AsyncStorage.getItem('token');
@@ -100,7 +105,7 @@ const App: React.FC = () => {
     const getAllUsernames = () => {
         snaps.forEach(async snap => {
             if (snap.from != null && snap._id != null) {
-                const formattedDate = snap.date.replace('T', ' ').substring(0, 19)
+                const formattedDate = snap.date.replace('T', ' ').substring(0, 16)
                 const foundUser: ItemData | undefined = getUsers(await getAllUsers(), snap.from, snap._id, formattedDate)
                 if (foundUser !== undefined) {
                     setUsers(prev => [...prev, foundUser])
@@ -138,10 +143,65 @@ const App: React.FC = () => {
         );
     };
 
-    console.log(selectedId)
+    const showSnap = async (): Promise<void> => {
+        try {
+            const token = await AsyncStorage.getItem('token');
+            const response = await fetch(`https://snapchat.epidoc.eu/snap/${selectedId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-API-Key": API_KEY,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const json = await response.json();
+
+            setimageBase64(json.data.image);
+            setDuration(json.data.duration);
+
+            setTimeout(() => {
+                setimageBase64(null);
+                setDuration(null);
+            }, 1000 * json.data.duration);
+
+        } catch (error) {
+            console.error('Error while fetching the GET/snap/{id}. Error =>', error);
+        }
+    }
+
+    const snapSeen = async (): Promise<void> => {
+        try {
+            const token = await AsyncStorage.getItem('token');
+            await fetch(`https://snapchat.epidoc.eu/snap/seen/${selectedId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-API-Key": API_KEY,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setUsers([]);
+        } catch (error) {
+            console.error('Error while fetching the PUT/snap/seen/{id}. Error =>', error);
+        }
+    }
+
+    useEffect(() => {
+        if (selectedId != null) {
+            showSnap();
+            snapSeen();
+        }
+        if (snaps.length == 0) {
+            return
+        } else {
+            setRefresh(true);
+        }
+    }, [selectedId])
+
     return (
         <View style={styles.body}>
-            <SafeAreaView style={styles.containerList}>
+            {!imageBase64 && <SafeAreaView style={styles.containerList}>
                 {error ? (
                     <View style={styles.errorContainer}>
                         <Text style={styles.errorText}>{error}</Text>
@@ -154,10 +214,11 @@ const App: React.FC = () => {
                         extraData={selectedId}
                     />
                 )}
-            </SafeAreaView>
+            </SafeAreaView>}
+            {duration && <Text style={styles.duration}>{duration}</Text>}
+            {imageBase64 && <Image source={{ uri: imageBase64 }} style={styles.image} />}
         </View>
     );
-
 };
 
 const styles = StyleSheet.create({
@@ -198,6 +259,15 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: 'red',
     },
+    image: {
+        width: '100%',
+        height: '90%',
+        marginTop: '10%'
+    },
+    duration: {
+        top: 20,
+        fontSize: 35
+    }
 });
 
 export default App;
