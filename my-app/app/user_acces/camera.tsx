@@ -108,7 +108,7 @@ const App: React.FC = () => {
         const token = await AsyncStorage.getItem('token');
         if (token != null) {
             try {
-                const response = await fetch('https://snapchat.epidoc.eu/user', {
+                const response = await fetch('https://snapchat.epidoc.eu/user/friends', {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",

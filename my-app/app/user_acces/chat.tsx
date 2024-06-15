@@ -224,14 +224,13 @@ const App: React.FC = () => {
                         extraData={selectedId}
                     />
                 )}
-            </SafeAreaView>
-            <View>
+            </SafeAreaView>}
+            {/* <View>
                 <Button
                     title="Amis"
                     onPress={() => navigation.navigate('friends')}
                 />
-            </View>
-            </SafeAreaView>}
+            </View> */}
             {duration && <Text style={styles.duration}>{duration}</Text>}
             {imageBase64 && <Image source={{ uri: imageBase64 }} style={styles.image} />}
         </View>
