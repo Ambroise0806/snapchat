@@ -1,17 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Button, Image } from 'react-native';
+import { View, StyleSheet, Button, Image, FlatList, SafeAreaView, Text, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_KEY } from '@env';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/core';
-import {
-    FlatList,
-    SafeAreaView,
-    Text,
-    TouchableOpacity,
-} from 'react-native';
-import { jsiConfigureProps } from 'react-native-reanimated/lib/typescript/reanimated2/core';
-import { FlipInEasyX } from 'react-native-reanimated';
 
 type RootStackParamList = {
     "friends": { string: string } | undefined;
@@ -29,9 +21,9 @@ type UserData = {
 };
 
 type Snap = {
-    _id: null;
+    _id: string | null;
     date: string;
-    from: string;
+    from: string | null;
 };
 
 type ItemProps = {
@@ -47,8 +39,8 @@ const App: React.FC = () => {
     const [snaps, setSnaps] = useState<Snap[]>([]);
     const [error, setError] = useState<string | null>(null);
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-    const [imageBase64, setimageBase64] = useState<string | null | undefined>(null);
-    const [duration, setDuration] = useState<number | null | undefined>(null);
+    const [imageBase64, setimageBase64] = useState<string | null>(null);
+    const [duration, setDuration] = useState<number | null>(null);
     const [refresh, setRefresh] = useState<boolean>(false);
 
     const getSnaps = async () => {
@@ -67,7 +59,7 @@ const App: React.FC = () => {
                 setSnaps(json.data);
             } catch (error) {
                 console.error(error);
-                setError("Failed to fetch users");
+                setError("Failed to fetch snaps");
             }
         } else {
             setError("No token found");
@@ -78,7 +70,7 @@ const App: React.FC = () => {
         getSnaps();
     }, [refresh]);
 
-    const getAllUsers = async () => {
+    const getAllUsers = async (): Promise<UserData[]> => {
         const token = await AsyncStorage.getItem('token');
         const response = await fetch(`https://snapchat.epidoc.eu/user/`, {
             method: "GET",
@@ -89,42 +81,42 @@ const App: React.FC = () => {
             },
         });
         const json = await response.json();
-        return json.data
-    }
+        return json.data;
+    };
 
     const getUsers = (users: Array<UserData>, id: string, id_snap: string, date: string): ItemData | undefined => {
         try {
-            const foundUser: UserData | undefined = users.find((user) => user._id == id)
+            const foundUser: UserData | undefined = users.find((user) => user._id == id);
             if (foundUser != undefined) {
                 return {
                     id_snap: id_snap,
                     username: foundUser.username,
                     date: date
-                }
+                };
             }
         } catch (error) {
             console.error(error);
-            setError(`FafoundUseriled to fetch users => error: ${error}`);
+            setError(`Failed to fetch users => error: ${error}`);
         }
     };
 
-    const getAllUsernames = () => {
-        snaps.forEach(async snap => {
+    const getAllUsernames = async () => {
+        const users = await getAllUsers();
+        snaps.forEach(snap => {
             if (snap.from != null && snap._id != null) {
-                const formattedDate = snap.date.replace('T', ' ').substring(0, 16)
-                const foundUser: ItemData | undefined = getUsers(await getAllUsers(), snap.from, snap._id, formattedDate)
+                const formattedDate = snap.date.replace('T', ' ').substring(0, 16);
+                const foundUser: ItemData | undefined = getUsers(users, snap.from, snap._id, formattedDate);
                 if (foundUser !== undefined) {
-                    setUsers(prev => [...prev, foundUser])
+                    setUsers(prev => [...prev, foundUser]);
                 }
             }
         });
-    }
+    };
 
     useEffect(() => {
-        if (snaps.length == 0) {
-            return
+        if (snaps.length > 0) {
+            getAllUsernames();
         }
-        getAllUsernames()
     }, [snaps]);
 
     const Item = ({ item, onPress, backgroundColor, textColor }: ItemProps) => (
@@ -174,7 +166,7 @@ const App: React.FC = () => {
         } catch (error) {
             console.error('Error while fetching the GET/snap/{id}. Error =>', error);
         }
-    }
+    };
 
     const snapSeen = async (): Promise<void> => {
         try {
@@ -191,47 +183,42 @@ const App: React.FC = () => {
         } catch (error) {
             console.error('Error while fetching the PUT/snap/seen/{id}. Error =>', error);
         }
-    }
+    };
 
     useEffect(() => {
         if (selectedId != null) {
             showSnap();
             snapSeen();
         }
-        if (snaps.length == 0) {
-            return
-        } else {
-            if(refresh){
-                setRefresh(false);
-            } else {
-                setRefresh(true);
-            }
+        if (snaps.length > 0) {
+            setRefresh(!refresh);
         }
-    }, [selectedId])
+    }, [selectedId]);
 
     return (
         <View style={styles.body}>
-            {!imageBase64 && <SafeAreaView style={styles.containerList}>
-                {error ? (
-                    <View style={styles.errorContainer}>
-                        <Text style={styles.errorText}>{error}</Text>
+            {!imageBase64 && (
+                <SafeAreaView style={styles.containerList}>
+                    {error ? (
+                        <View style={styles.errorContainer}>
+                            <Text style={styles.errorText}>{error}</Text>
+                        </View>
+                    ) : (
+                        <FlatList
+                            data={users}
+                            renderItem={renderItem}
+                            keyExtractor={item => item.id_snap}
+                            extraData={selectedId}
+                        />
+                    )}
+                    <View>
+                        <Button
+                            title="Amis"
+                            onPress={() => navigation.navigate('friends')}
+                        />
                     </View>
-                ) : (
-                    <FlatList
-                        data={users}
-                        renderItem={renderItem}
-                        keyExtractor={item => item.id_snap}
-                        extraData={selectedId}
-                    />
-                )}
-            </SafeAreaView>
-            <View>
-                <Button
-                    title="Amis"
-                    onPress={() => navigation.navigate('friends')}
-                />
-            </View>
-            </SafeAreaView>}
+                </SafeAreaView>
+            )}
             {duration && <Text style={styles.duration}>{duration}</Text>}
             {imageBase64 && <Image source={{ uri: imageBase64 }} style={styles.image} />}
         </View>
