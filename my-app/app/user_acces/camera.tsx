@@ -104,7 +104,7 @@ const App: React.FC = () => {
         }
     }
 
-    const getFriends = async () => {
+    const getUsers = async () => {
         const token = await AsyncStorage.getItem('token');
         if (token != null) {
             try {
@@ -128,7 +128,7 @@ const App: React.FC = () => {
     };
 
     useEffect(() => {
-        getFriends();
+        getUsers();
     }, []);
 
     const renderItem = ({ item }: { item: ItemData }) => {
