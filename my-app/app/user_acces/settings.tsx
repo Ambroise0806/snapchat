@@ -11,8 +11,8 @@ const HomeScreen = () => {
         const [email, setEmail] = useState('');
         const [password, setPassword] = useState('');
         const [userName, setUserName] = useState('');
-        const [imageBase64, setimageBase64] = useState<string | null | undefined>(null);
-        const [imageUri, setImageUri] = useState<string | null>(null);
+        const [imageBase64, setimageBase64] = useState<string | null | undefined>('');
+        const [imageUri, setImageUri] = useState<string | null>('');
         
         async function CrudModif() {
                 const token = await AsyncStorage.getItem('token');
@@ -22,7 +22,6 @@ const HomeScreen = () => {
                 const response = await fetch("https://snapchat.epidoc.eu/user", {
                     method: "PATCH",
                     headers: {
-                        "Content-Type": "application/json",
                         "X-API-Key": API_KEY,
                         Authorization: `Bearer ${token}`,
                     },

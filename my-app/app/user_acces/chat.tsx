@@ -45,6 +45,7 @@ const App: React.FC = () => {
 
     const getSnaps = async () => {
         const token = await AsyncStorage.getItem('token');
+        console.log(token)
         if (token != null) {
             try {
                 const response = await fetch('https://snapchat.epidoc.eu/snap', {
