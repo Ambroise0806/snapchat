@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/core';
+import { router } from 'expo-router';
 import { API_KEY } from '@env';
 
 type RootStackParamList = {
@@ -26,6 +27,11 @@ const SignUpScreen = () => {
                 },
                 body: JSON.stringify(donnees),
             });
+            if (response.status === 400) {
+                Alert.alert("Erreur lors de l'inscription !")
+            } else {
+                router.replace('auth/login');
+            }
             return response.json();
         } catch (error) {
             console.log("Erreur lors de l'inscription", error)

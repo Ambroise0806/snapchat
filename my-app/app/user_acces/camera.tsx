@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Image, View, StyleSheet, Platform } from 'react-native';
+import { Button, Image, View, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_KEY } from '@env';
@@ -7,7 +7,6 @@ import RNPickerSelect from 'react-native-picker-select';
 import {
     FlatList,
     SafeAreaView,
-    StatusBar,
     Text,
     TouchableOpacity,
     Alert,
@@ -26,8 +25,8 @@ type ItemProps = {
 };
 
 type Donnees = {
-    to: string | null, 
-    image: string | null, 
+    to: string | null,
+    image: string | null,
     duration: number
 }
 
@@ -50,19 +49,18 @@ const App: React.FC = () => {
         const placeholder = {
             label: '5 sec',
             value: 5,
-            }; const options = [
-                { label: '1 sec', value: 1 },
-                { label: '2 sec', value: 2 },
-                { label: '3 sec', value: 3 },
-                { label: '4 sec', value: 4 },
-                { label: '5 sec', value: 5 },
-                { label: '6 sec', value: 6 },
-                { label: '7 sec', value: 7 },
-                { label: '8 sec', value: 8 },
-                { label: '9 sec', value: 9 },
-                { label: '10 sec', value: 10 },
-                ];
-            console.log(typeof(duration))
+        }; const options = [
+            { label: '1 sec', value: 1 },
+            { label: '2 sec', value: 2 },
+            { label: '3 sec', value: 3 },
+            { label: '4 sec', value: 4 },
+            { label: '5 sec', value: 5 },
+            { label: '6 sec', value: 6 },
+            { label: '7 sec', value: 7 },
+            { label: '8 sec', value: 8 },
+            { label: '9 sec', value: 9 },
+            { label: '10 sec', value: 10 },
+        ];
         return (
             <View>
                 <RNPickerSelect
