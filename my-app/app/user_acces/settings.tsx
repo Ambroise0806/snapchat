@@ -22,12 +22,14 @@ const HomeScreen = () => {
                 const response = await fetch("https://snapchat.epidoc.eu/user", {
                     method: "PATCH",
                     headers: {
+                        "Content-Type": "application/json",
                         "X-API-Key": API_KEY,
                         Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify(donnees),
                 });
                 const json = await response.json();
+                console.log(response)
                 if (response.status === 400) {
                     console.error('Error response API :', json.data);
                     Alert.alert("Echec de la modification", json.data)
@@ -91,40 +93,40 @@ const HomeScreen = () => {
     return (
         <View style={styles.container}>
             <View>
-                {imageUri && <Image 
-                source={{ uri: imageUri}}
-                style={{
-                    borderColor: 'gray',
-                    borderWidth: 5,
-                    height: 100,
-                    width: 100,
-                    borderRadius: 50
-                    }}
-                />}
+                {imageUri && (
+                    <Image 
+                        source={{ uri: imageUri }}
+                        style={styles.image}
+                    />
+                )}
             </View>
-                {!imageUri && <View>
+            {!imageUri && (
+                <View>
                     <Button title="Sélectionner une image dans la Gallerie" color="#E82754" onPress={selectImage} />
                     <Button title="Prendre une photo" color="#3CB2E2" onPress={takePhoto} />
-            </View>}
-            <TextInput
-                value={email}
-                style={styles.input}
-                placeholder="Email"
-                onChangeText={setEmail}
-            />
-            <TextInput
-                value={password}
-                style={styles.input}
-                placeholder="Password"
-                secureTextEntry={true}
-                onChangeText={setPassword}
-            />
-            <TextInput
-                value={userName}
-                style={styles.input}
-                placeholder="Username"
-                onChangeText={setUserName}
-            />
+                </View>
+            )}
+            <View style={styles.inputContainer}>
+                <TextInput
+                    value={email}
+                    style={styles.input}
+                    placeholder="Email"
+                    onChangeText={setEmail}
+                />
+                <TextInput
+                    value={password}
+                    style={styles.input}
+                    placeholder="Password"
+                    secureTextEntry={true}
+                    onChangeText={setPassword}
+                />
+                <TextInput
+                    value={userName}
+                    style={styles.input}
+                    placeholder="Username"
+                    onChangeText={setUserName}
+                />
+            </View>
             <ThemedView style={styles.body}>
                 <ThemedView style={styles.inscriptionContainer}>
                     <Button
@@ -138,13 +140,12 @@ const HomeScreen = () => {
             <View style={styles.button1}>
                 <Button
                     title="Valider les modification du profil"
-                    onPress={ CrudModif }
+                    onPress={CrudModif}
                 />
             </View>
         </View>
     );
 }
-
 
 const styles = StyleSheet.create({
     //real color snap 
@@ -155,7 +156,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         width: '100%',
         height: '5%',
-        backgroundColor:'white',
+        backgroundColor: 'white',
     },
     inscriptionContainer: {
         bottom: -300,
@@ -175,11 +176,21 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor:'white',
+        backgroundColor: 'white',
+    },
+    image: {
+        borderColor: 'gray',
+        borderWidth: 5,
+        height: 100,
+        width: 100,
+        borderRadius: 50,
     },
     title: {
         fontSize: 24,
         marginBottom: 20,
+    },
+    inputContainer: {
+        marginTop: 60,
     },
     input: {
         width: 200,
@@ -190,5 +201,4 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
     },
 });
-
 export default HomeScreen;
