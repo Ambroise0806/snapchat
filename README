@@ -1,3 +1,17 @@
-Install dependencies: npm i
+Description
 
-start dev server: npx expo start --tunnel
+Ce projet est une application de type Snapchat développée en utilisant React Native pour la partie front-end et Express pour la partie back-end. L'application permet aux utilisateurs de s'inscrire, de se connecter, de prendre des photos, de les envoyer à d'autres utilisateurs et de recevoir des photos.
+
+Fonctionnalités
+
+    Inscription et connexion des utilisateurs
+    Prise de photos avec la caméra
+    Envoi de photos à d'autres utilisateurs
+    Réception de photos
+
+Architecture
+
+Le projet est structuré en deux parties principales :
+
+    frontend : Contient l'application mobile React Native utilisant Expo.
+    backend : Contient le serveur Express gérant l'authentification des utilisateurs, la gestion des photos et les autres API nécessaires.
